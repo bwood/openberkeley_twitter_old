@@ -1,11 +1,17 @@
 <?php
 
 /**
- * Implements hook_ctools_plugin_directory().
+ * Implements hook_ctools_plugin_directory()
  */
-function openberkeley_twitter_ctools_content_type_ctools_plugin_directory($module, $plugin) {
-  if ($module == 'ctools' && !empty($plugin)) {
-    return "plugins/$plugin";
+function openberkeley_twitter_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'ctools' && $plugin == 'content_types') {
+    return 'plugins/' . $plugin;
   }
 }
 
+/**
+ * Implements hook_panopoly_magic_forms_to_improve_alter().
+ */
+function openberkeley_twitter_panopoly_magic_forms_to_improve_alter(&$form_ids) {
+  $form_ids[] = 'openberkeley_twitter_openberkeley_twitter_embed_content_type_edit_form';
+}

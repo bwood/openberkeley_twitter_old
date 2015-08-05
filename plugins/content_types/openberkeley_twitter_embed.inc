@@ -17,13 +17,13 @@ $plugin = array(
  * @param $form_state
  * @return mixed
  */
-function openberkeley_twitter_embed_content_type_edit_form($form, &$form_state) {
+function openberkeley_twitter_openberkeley_twitter_embed_content_type_edit_form($form, &$form_state) {
   $conf = $form_state['conf'];
-  $form['openberkeley_twitter_embed_label'] = array(
+  $form['openberkeley_twitter_embed_code'] = array(
     '#type' => 'textarea',
     '#title' => t('Twitter Embed Code'),
     '#description' => t('Paste your Twitter embed code here.'),
-    '#default_value' => !empty($conf['openberkeley_twitter_embed_label']) ? $conf['openberkeley_twitter_embed_label'] : '',
+    '#default_value' => !empty($conf['openberkeley_twitter_embed_code']) ? $conf['openberkeley_twitter_embed_code'] : '',
   );
   return $form;
 }
@@ -31,7 +31,7 @@ function openberkeley_twitter_embed_content_type_edit_form($form, &$form_state) 
 /**
  * Form validation callback for openberkeley_twitter_embed_content_type_edit_form().
  */
-function openberkeley_widgets_openberkeley_twitter_embed_content_type_edit_form_validate($form, &$form_state) {
+function openberkeley_twitter_openberkeley_twitter_embed_content_type_edit_form_validate($form, &$form_state) {
 /*
   $subtype = $form_state['subtype_name'];
   $widgets = openberkeley_widgets_simple_embed_widgets();
@@ -54,7 +54,7 @@ function openberkeley_widgets_openberkeley_twitter_embed_content_type_edit_form_
  * @param $form
  * @param $form_state
  */
-function openberkeley_twitter_embed_content_type_edit_form_submit($form, &$form_state) {
+function openberkeley_twitter_openberkeley_twitter_embed_content_type_edit_form_submit($form, &$form_state) {
   foreach (array('openberkeley_twitter_embed_label') as $key) {
     $form_state['conf'][$key] = $form_state['values'][$key];
   }
@@ -63,7 +63,7 @@ function openberkeley_twitter_embed_content_type_edit_form_submit($form, &$form_
 /**
  * Render callback for the openberkeley_twitter_embed content type.
  */
-function openberkeley_widgets_openberkeley_simple_embed_content_type_render($subtype, $conf, $args, $context) {
+function openberkeley_twitter_openberkeley_twitter_embed_content_type_render($subtype, $conf, $args, $context) {
 //  $widgets = openberkeley_widgets_simple_embed_widgets();
 //  $widget = $widgets[$subtype];
 
