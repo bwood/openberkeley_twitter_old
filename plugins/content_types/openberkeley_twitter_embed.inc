@@ -4,9 +4,9 @@ $plugin = array(
   'description' => t('Displays a Twitter embedded object.'),
   'single' => TRUE,
   'content_types' => array('openberkeley_twitter_embed'),
-  'render callback' => 'openberkeley_twitter_embed_content_type_render',
+  'render callback' => 'openberkeley_twitter_openberkeley_twitter_embed_content_type_render',
   //'required context' => new ctools_context_required(t('Node'), 'node'),
-  'edit form' => 'openberkeley_twitter_embed_content_type_edit_form',
+  'edit form' => 'openberkeley_twitter_openberkeley_twitter_embed_content_type_edit_form',
   'category' => t('Embeddable content'),
 );
 
@@ -79,6 +79,7 @@ function openberkeley_twitter_openberkeley_twitter_embed_content_type_render($su
 */
 
   $pane = new stdClass();
-  $pane->content = "This is a test";
+  $pane->content = '<a class="twitter-timeline" href="https://twitter.com/getbwood" data-widget-id="628362360164495360">Tweets by @getbwood</a><script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?\'http\':\'https\';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>';
+  //$pane->content = '<b>This is some content.</b>';
   return $pane;
 }
