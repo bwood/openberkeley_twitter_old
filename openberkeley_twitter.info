@@ -3,3 +3,5 @@ description = Creates panels widget for embedding Twitter widgets
 core = 7.x
 package = Open Berkeley
 project = openberkeley_twitter
+dependencies[] = ctools
+
