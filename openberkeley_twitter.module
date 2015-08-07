@@ -15,3 +15,40 @@ function openberkeley_twitter_ctools_plugin_directory($module, $plugin) {
 function openberkeley_twitter_panopoly_magic_forms_to_improve_alter(&$form_ids) {
   $form_ids[] = 'openberkeley_twitter_openberkeley_twitter_embed_content_type_edit_form';
 }
+
+/**
+ * Extracts the embed link using a regular expression.
+ *
+ * @param string $input
+ *   Input from the user, either a link or embed code.
+ * @param string $pattern
+ *   The regexp pattern to match
+ *
+ * @return string|NULL
+ *   Returns the link if valid; otherwise NULL.
+ */
+function openberkeley_twitter_widget_extract_element_callback($input, $pattern) {
+  if (preg_match($pattern, $input, $matches)) {
+    return $matches[1];
+  }
+}
+
+/**
+ * Generates the widget embed code using a simple template.
+ *
+ * @param array $config
+ *   An associative array representing the widget configuration.
+ * @param array $widget_info
+ *   The array describing this widget.
+ *
+ * @return string
+ *   The generated HTML code.
+ */
+function openberkeley_twitter_widget_embed_callback($config, $template) {
+  $replacements = array();
+  foreach ($config as $name => $value) {
+    $replacements['[' . $name . ']'] = check_plain($value);
+  }
+
+  return strtr($template, $replacements);
+}
