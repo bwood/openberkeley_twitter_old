@@ -10,6 +10,19 @@ function openberkeley_twitter_ctools_plugin_directory($module, $plugin) {
 }
 
 /**
+ * Define info about the twitter widget
+ */
+function openberkeley_twitter_widget() {
+  return array(
+    'extract element callback' => 'openberkeley_twitter_widget_extract_element_callback',
+    'extract username pattern' => '|href\s?=\s?"https://twitter.com/([^"]+)"|',
+    'extract data-widget-id pattern' => '|data-widget-id\s?=\s?"([^"]+)"|',
+    'embed template' => '<a class="twitter-timeline" href="https://twitter.com/[username]" data-widget-id="[data-widget-id]">Tweets by @[username]</a><script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?\'http\':\'https\';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>',
+    'embed callback' => 'openberkeley_twitter_widget_embed_callback'
+  );
+}
+
+/**
  * Implements hook_panopoly_magic_forms_to_improve_alter().
  */
 function openberkeley_twitter_panopoly_magic_forms_to_improve_alter(&$form_ids) {
