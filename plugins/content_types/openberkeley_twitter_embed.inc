@@ -53,6 +53,10 @@ EOT;
     '#description' => t('Paste your Twitter embed code here.'),
     '#default_value' => !empty($conf['openberkeley_twitter_embed_code']) ? $conf['openberkeley_twitter_embed_code'] : '',
   );
+  //$form['panopoly_form_widget_preview']['#attached']['js'][] = array(
+  $form['#attached']['js'] = array(
+    drupal_get_path('module', 'openberkeley_twitter') . '/openberkeley-twitter.js',
+  );
   return $form;
 }
 
