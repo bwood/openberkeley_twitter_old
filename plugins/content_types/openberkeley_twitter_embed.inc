@@ -75,12 +75,12 @@ function openberkeley_twitter_openberkeley_twitter_embed_content_type_render($su
   // For security purposes, we re-validate the data before rendering.
   $conf['username'] = call_user_func($widget['extract element callback'], $conf['openberkeley_twitter_embed_code'], $widget['extract username pattern']);
   $conf['data-widget-id'] = call_user_func($widget['extract element callback'], $conf['openberkeley_twitter_embed_code'], $widget['extract data-widget-id pattern']);
+  $conf['title'] = call_user_func($widget['extract element callback'], $conf['openberkeley_twitter_embed_code'], $widget['extract title pattern']);
 
-  if (empty($conf['username']) || empty($conf['data-widget-id'])) {
+  if (empty($conf['username']) || empty($conf['data-widget-id']) || empty($conf['title'])) {
     return;
   }
 
-  $template = '<a class="twitter-timeline" href="https://twitter.com/[username]" data-widget-id="[data-widget-id]">Tweets by @[username]</a><script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?\'http\':\'https\';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>';
   // Generate the embed code.
   $embed = call_user_func($widget['embed callback'], $conf, $widget['embed template']);
 
