@@ -33,22 +33,30 @@ function openberkeley_twitter_openberkeley_twitter_embed_content_type_edit_form(
  * Form validation callback for openberkeley_twitter_embed_content_type_edit_form().
  */
 function openberkeley_twitter_openberkeley_twitter_embed_content_type_edit_form_validate($form, &$form_state) {
-/*
-  $subtype = $form_state['subtype_name'];
-  $widgets = openberkeley_widgets_simple_embed_widgets();
-  $widget = $widgets[$subtype];
+  $widget = openberkeley_twitter_widget();
 
-  if (!call_user_func($widget['extract link callback'], $form_state['values']['link'], $widget)) {
-    form_set_error('link', t('Invalid Google Forms link or embed code.'));
+  // Don't expect the embed code/patterns to change so hardcoding...
+  $patterns = array(
+    'username',
+    'data-widget-id',
+    'title'
+  );
+  foreach ($patterns as $type) {
+    if (!call_user_func($widget['extract element callback'], $form_state['values']['openberkeley_twitter_embed_code'], $widget["extract $type pattern"])) {
+      form_set_error('link', t('Invalid Twitter embed code.'));
+      return TRUE;
+    }
   }
 
+  /*
   $height = $form_state['values']['height'];
   if (!is_numeric($height) || intval($height) != $height || intval($height) < 0) {
     form_set_error('height', t('Height must be a positive, whole number.'));
   }
-*/
+ */
   return TRUE;
 }
+
 /**
  * Ctools edit form submit handler.
  *
