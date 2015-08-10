@@ -19,8 +19,35 @@ $plugin = array(
  */
 function openberkeley_twitter_openberkeley_twitter_embed_content_type_edit_form($form, &$form_state) {
 
+  $instructions =<<<EOT
+ <div>
+   <ol>
+    <li>Login to Twitter using the account for which you'd like to embed data.</li>
+    <li>Visit https://twitter.com/settings/widgets and choose "Create New."</li>
+    <li>Recommended: Uncheck auto-expand photos.</li>
+    <li>Recommended: Do not change height, theme or link color.</li>
+    <li>Click the "Save Changes" button.</li>
+    <li>Select all of the code in the box appearing above "Copy and paste the code into the HTML of your site."</li>
+    <li>Paste the code into the "Twitter embed code" box here.</li>
+    <li>Click Save.</li>
+  </ol>
+ </div>
+EOT;
+
   $conf = $form_state['conf'];
-  $form['openberkeley_twitter_embed_code'] = array(
+  $form['openberkeley_twitter_container'] = array(
+    '#type' => 'fieldset',
+    '#tree' => FALSE,
+    '#title' => t('Twitter Settings'),
+    '#description' => t(''),
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
+  );
+  $form['openberkeley_twitter_container']['openberkeley_twitter_instructions_text'] = array(
+    '#markup' => $instructions,
+
+  );
+  $form['openberkeley_twitter_container']['openberkeley_twitter_embed_code'] = array(
     '#type' => 'textarea',
     '#title' => t('Twitter Embed Code'),
     '#description' => t('Paste your Twitter embed code here.'),
