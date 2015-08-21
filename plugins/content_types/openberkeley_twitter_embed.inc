@@ -56,6 +56,12 @@ EOT;
     '#default_value' => (isset($conf['openberkeley_twitter_number_tweets']) && !empty($conf['openberkeley_twitter_number_tweets'])) ? $conf['openberkeley_twitter_number_tweets'] : 3,
     '#options' => array(1=>1,2=>2,3=>3,4=>4,5=>5,6=>6,7=>7,8=>8,9=>9,10=>10,11=>11,12=>12,13=>13,14=>14,15=>15),
   );
+  $form['openberkeley_twitter_container']['openberkeley_twitter_hide_footer'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Hide tweet box'),
+    '#description' => t('Check this to hide the tweet composer box at the bottom of your timeline.'),
+    '#default_value' => (isset($conf['openberkeley_twitter_hide_footer']) && !empty($conf['openberkeley_twitter_hide_footer'])) ? $conf['openberkeley_twitter_hide_footer'] : FALSE,
+  );
   $form['openberkeley_twitter_container']['openberkeley_twitter_embed_code'] = array(
     '#type' => 'textarea',
     '#title' => t('Twitter Embed Code'),
@@ -103,11 +109,15 @@ function openberkeley_twitter_openberkeley_twitter_embed_content_type_edit_form_
   $widget = openberkeley_twitter_widget();
 
   // save the embed code for revalidation in the render stage
-  $form_state['conf']['openberkeley_twitter_embed_code'] = $form_state['values']['openberkeley_twitter_embed_code'];
   $form_state['conf']['username'] = call_user_func($widget['extract element callback'], $form_state['values']['openberkeley_twitter_embed_code'], $widget['extract username pattern']);
   $form_state['conf']['data-widget-id'] = call_user_func($widget['extract element callback'], $form_state['values']['openberkeley_twitter_embed_code'], $widget['extract data-widget-id pattern']);
-  $form_state['conf']['openberkeley_twitter_number_tweets'] = $form_state['values']['openberkeley_twitter_number_tweets'];
 
+  // stash all the other values under the conf key
+  foreach ($form_state['values'] as $key => $value) {
+    $form_state['conf'][$key] = $value;
+  }
+
+  // Provide a default pane title
   if ($form_state['values']['override_title'] !=1 ) {
     $form_state['values']['override_title'] = 1;
   }
@@ -128,7 +138,7 @@ function openberkeley_twitter_openberkeley_twitter_embed_content_type_render($su
   $conf['username'] = call_user_func($widget['extract element callback'], $conf['openberkeley_twitter_embed_code'], $widget['extract username pattern']);
   $conf['data-widget-id'] = call_user_func($widget['extract element callback'], $conf['openberkeley_twitter_embed_code'], $widget['extract data-widget-id pattern']);
   $conf['title'] = call_user_func($widget['extract element callback'], $conf['openberkeley_twitter_embed_code'], $widget['extract title pattern']);
-
+  $conf['nofooter'] = ($conf['openberkeley_twitter_hide_footer']) ? ' nofooter' : NULL;
 
   if (empty($conf['username']) || empty($conf['data-widget-id']) || empty($conf['title'])) {
     return;
