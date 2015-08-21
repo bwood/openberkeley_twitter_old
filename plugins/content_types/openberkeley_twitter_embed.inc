@@ -109,6 +109,14 @@ function openberkeley_twitter_openberkeley_twitter_embed_content_type_edit_form_
   $form_state['conf']['data-widget-id'] = call_user_func($widget['extract element callback'], $form_state['values']['openberkeley_twitter_embed_code'], $widget['extract data-widget-id pattern']);
   $form_state['conf']['openberkeley_twitter_number_tweets'] = $form_state['values']['openberkeley_twitter_number_tweets'];
 
+  if ($form_state['values']['override_title'] !=1 ) {
+    $form_state['values']['override_title'] = 1;
+  }
+  $default_title_text = 'Twitter @' . $form_state['conf']['username'];
+  if (empty($form_state['values']['override_title_text']) || ($form_state['values']['override_title_text'] == $default_title_text) ) {
+    $form_state['values']['override_title_text'] = $default_title_text;
+  }
+
 }
 
 /**
