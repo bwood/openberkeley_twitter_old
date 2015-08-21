@@ -42,10 +42,20 @@ EOT;
     '#description' => t(''),
     '#collapsible' => FALSE,
     '#collapsed' => FALSE,
+    '#weight' => -100
   );
   $form['openberkeley_twitter_container']['openberkeley_twitter_instructions_text'] = array(
     '#markup' => $instructions,
 
+  );
+  $form['openberkeley_twitter_container']['openberkeley_twitter_number_tweets'] = array(
+    '#type' => 'select',
+    '#required' => TRUE,
+    '#title' => t('Number of tweets to display'),
+    '#description' => t(''),
+    '#default_value' => !empty($conf['openberkeley_twitter_number_tweets']) ? !empty($conf['openberkeley_twitter_number_tweets']) : 3,
+    '#empty_option' => t('- Select -'),
+    '#options' => array(1=>1,2=>2,3=>3,4=>4,5=>5,6=>6,7=>7,8=>8,9=>9,10=>10,11=>11,12=>12,13=>13,14=>14,15=>15,16=>16,17=>17,18=>18,19=>19,20=>20),
   );
   $form['openberkeley_twitter_container']['openberkeley_twitter_embed_code'] = array(
     '#type' => 'textarea',
@@ -97,7 +107,7 @@ function openberkeley_twitter_openberkeley_twitter_embed_content_type_edit_form_
   $form_state['conf']['openberkeley_twitter_embed_code'] = $form_state['values']['openberkeley_twitter_embed_code'];
   $form_state['conf']['username'] = call_user_func($widget['extract element callback'], $form_state['values']['openberkeley_twitter_embed_code'], $widget['extract username pattern']);
   $form_state['conf']['data-widget-id'] = call_user_func($widget['extract element callback'], $form_state['values']['openberkeley_twitter_embed_code'], $widget['extract data-widget-id pattern']);
-  //$form_state['conf']['height'] = $form_state['values']['height'];
+  $form_state['conf']['openberkeley_twitter_number_tweets'] = $form_state['values']['openberkeley_twitter_number_tweets'];
 
 }
 
@@ -111,6 +121,7 @@ function openberkeley_twitter_openberkeley_twitter_embed_content_type_render($su
   $conf['username'] = call_user_func($widget['extract element callback'], $conf['openberkeley_twitter_embed_code'], $widget['extract username pattern']);
   $conf['data-widget-id'] = call_user_func($widget['extract element callback'], $conf['openberkeley_twitter_embed_code'], $widget['extract data-widget-id pattern']);
   $conf['title'] = call_user_func($widget['extract element callback'], $conf['openberkeley_twitter_embed_code'], $widget['extract title pattern']);
+
 
   if (empty($conf['username']) || empty($conf['data-widget-id']) || empty($conf['title'])) {
     return;
