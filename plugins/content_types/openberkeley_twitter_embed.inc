@@ -19,15 +19,22 @@ $plugin = array(
  */
 function openberkeley_twitter_openberkeley_twitter_embed_content_type_edit_form($form, &$form_state) {
 
+  $login_link = l("Login to Twitter", 'https://twitter.com', array("attributes" => array("target" => "_twitter")));
+  $widgets_link = l("https://twitter.com/settings/widgets","https://twitter.com/settings/widgets", array("attributes" => array("target" => "_twitter")));
+  $timeline_types = l("Timeline, Favorites, List, Search and Collection", "https://dev.twitter.com/web/embedded-timelines", array("attributes" => array("target" => "_twitter_docs")));
   $instructions =<<<EOT
  <div>
    <ol>
-    <li>Login to Twitter using the account for which you'd like to embed data.</li>
-    <li>Visit https://twitter.com/settings/widgets and choose "Create New."</li>
+    <li>$login_link using the account for which you'd like to embed data.</li>
+    <li>Visit $widgets_link and choose "Create New." ($timeline_types widgets are all supported.)</li>
     <li>Recommended: Uncheck auto-expand photos.</li>
     <li>Recommended: Do not change height, theme or link color.</li>
     <li>Click the "Save Changes" button.</li>
     <li>Select all of the code in the box appearing above "Copy and paste the code into the HTML of your site."</li>
+    <ul>
+      <li><i>Note: If you attempt to specify customizations to data-chrome or other elements in your anchor tag, they will be ignored.</i>
+      </li>
+    </ul>
     <li>Paste the code into the "Twitter embed code" box here.</li>
     <li>Click Save.</li>
   </ol>
