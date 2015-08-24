@@ -63,6 +63,12 @@ EOT;
     '#default_value' => (isset($conf['openberkeley_twitter_number_tweets']) && !empty($conf['openberkeley_twitter_number_tweets'])) ? $conf['openberkeley_twitter_number_tweets'] : 3,
     '#options' => array(1=>1,2=>2,3=>3,4=>4,5=>5,6=>6,7=>7,8=>8,9=>9,10=>10,11=>11,12=>12,13=>13,14=>14,15=>15),
   );
+  $form['openberkeley_twitter_container']['openberkeley_twitter_show_replies'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Show your replies to others'),
+    '#description' => t('Checking this box will show your tweets that begin with "@username". (Beginning a tweet with "@username" defines a tweet as a reply to the referenced user.)'),
+    '#default_value' => isset($conf['openberkeley_twitter_show_replies']) ? $conf['openberkeley_twitter_show_replies'] : FALSE,
+  );
   $form['openberkeley_twitter_container']['openberkeley_twitter_hide_footer'] = array(
     '#type' => 'checkbox',
     '#title' => t('Hide tweet box'),
@@ -146,6 +152,7 @@ function openberkeley_twitter_openberkeley_twitter_embed_content_type_render($su
   $conf['data-widget-id'] = call_user_func($widget['extract element callback'], $conf['openberkeley_twitter_embed_code'], $widget['extract data-widget-id pattern']);
   $conf['title'] = call_user_func($widget['extract element callback'], $conf['openberkeley_twitter_embed_code'], $widget['extract title pattern']);
   $conf['nofooter'] = ($conf['openberkeley_twitter_hide_footer']) ? ' nofooter' : NULL;
+  $conf['show_replies'] = ($conf['openberkeley_twitter_show_replies']) ? 'true' : 'false';
 
   if (empty($conf['username']) || empty($conf['data-widget-id']) || empty($conf['title'])) {
     return;
