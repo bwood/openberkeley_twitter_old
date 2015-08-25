@@ -19,15 +19,22 @@ $plugin = array(
  */
 function openberkeley_twitter_openberkeley_twitter_embed_content_type_edit_form($form, &$form_state) {
 
+  $login_link = l("Login to Twitter", 'https://twitter.com', array("attributes" => array("target" => "_twitter")));
+  $widgets_link = l("https://twitter.com/settings/widgets","https://twitter.com/settings/widgets", array("attributes" => array("target" => "_twitter")));
+  $timeline_types = l("Timeline, Favorites, List, Search and Collection", "https://dev.twitter.com/web/embedded-timelines", array("attributes" => array("target" => "_twitter_docs")));
   $instructions =<<<EOT
  <div>
    <ol>
-    <li>Login to Twitter using the account for which you'd like to embed data.</li>
-    <li>Visit https://twitter.com/settings/widgets and choose "Create New."</li>
+    <li>$login_link using the account for which you'd like to embed data.</li>
+    <li>Visit $widgets_link and choose "Create New." ($timeline_types widgets are all supported.)</li>
     <li>Recommended: Uncheck auto-expand photos.</li>
     <li>Recommended: Do not change height, theme or link color.</li>
     <li>Click the "Save Changes" button.</li>
     <li>Select all of the code in the box appearing above "Copy and paste the code into the HTML of your site."</li>
+    <ul>
+      <li><i>Note: If you attempt to specify customizations to data-chrome or other elements in your anchor tag, they will be ignored.</i>
+      </li>
+    </ul>
     <li>Paste the code into the "Twitter embed code" box here.</li>
     <li>Click Save.</li>
   </ol>
@@ -42,10 +49,31 @@ EOT;
     '#description' => t(''),
     '#collapsible' => FALSE,
     '#collapsed' => FALSE,
+    '#weight' => -100
   );
   $form['openberkeley_twitter_container']['openberkeley_twitter_instructions_text'] = array(
     '#markup' => $instructions,
 
+  );
+  $form['openberkeley_twitter_container']['openberkeley_twitter_number_tweets'] = array(
+    '#type' => 'select',
+    '#required' => TRUE,
+    '#title' => t('Number of tweets to display'),
+    '#description' => t(''),
+    '#default_value' => (isset($conf['openberkeley_twitter_number_tweets']) && !empty($conf['openberkeley_twitter_number_tweets'])) ? $conf['openberkeley_twitter_number_tweets'] : 3,
+    '#options' => array(1=>1,2=>2,3=>3,4=>4,5=>5,6=>6,7=>7,8=>8,9=>9,10=>10,11=>11,12=>12,13=>13,14=>14,15=>15),
+  );
+  $form['openberkeley_twitter_container']['openberkeley_twitter_show_replies'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Show your replies to others'),
+    '#description' => t('Checking this box will show your tweets that begin with "@username". (Beginning a tweet with "@username" defines a tweet as a reply to the referenced user.)'),
+    '#default_value' => isset($conf['openberkeley_twitter_show_replies']) ? $conf['openberkeley_twitter_show_replies'] : FALSE,
+  );
+  $form['openberkeley_twitter_container']['openberkeley_twitter_hide_footer'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Hide tweet box'),
+    '#description' => t('Check this to hide the tweet composer box at the bottom of your timeline.'),
+    '#default_value' => (isset($conf['openberkeley_twitter_hide_footer']) && !empty($conf['openberkeley_twitter_hide_footer'])) ? $conf['openberkeley_twitter_hide_footer'] : FALSE,
   );
   $form['openberkeley_twitter_container']['openberkeley_twitter_embed_code'] = array(
     '#type' => 'textarea',
@@ -94,10 +122,22 @@ function openberkeley_twitter_openberkeley_twitter_embed_content_type_edit_form_
   $widget = openberkeley_twitter_widget();
 
   // save the embed code for revalidation in the render stage
-  $form_state['conf']['openberkeley_twitter_embed_code'] = $form_state['values']['openberkeley_twitter_embed_code'];
   $form_state['conf']['username'] = call_user_func($widget['extract element callback'], $form_state['values']['openberkeley_twitter_embed_code'], $widget['extract username pattern']);
   $form_state['conf']['data-widget-id'] = call_user_func($widget['extract element callback'], $form_state['values']['openberkeley_twitter_embed_code'], $widget['extract data-widget-id pattern']);
-  //$form_state['conf']['height'] = $form_state['values']['height'];
+
+  // stash all the other values under the conf key
+  foreach ($form_state['values'] as $key => $value) {
+    $form_state['conf'][$key] = $value;
+  }
+
+  // Provide a default pane title
+  if ($form_state['values']['override_title'] !=1 ) {
+    $form_state['values']['override_title'] = 1;
+  }
+  $default_title_text = 'Twitter @' . $form_state['conf']['username'];
+  if (empty($form_state['values']['override_title_text']) || ($form_state['values']['override_title_text'] == $default_title_text) ) {
+    $form_state['values']['override_title_text'] = $default_title_text;
+  }
 
 }
 
@@ -111,6 +151,8 @@ function openberkeley_twitter_openberkeley_twitter_embed_content_type_render($su
   $conf['username'] = call_user_func($widget['extract element callback'], $conf['openberkeley_twitter_embed_code'], $widget['extract username pattern']);
   $conf['data-widget-id'] = call_user_func($widget['extract element callback'], $conf['openberkeley_twitter_embed_code'], $widget['extract data-widget-id pattern']);
   $conf['title'] = call_user_func($widget['extract element callback'], $conf['openberkeley_twitter_embed_code'], $widget['extract title pattern']);
+  $conf['nofooter'] = ($conf['openberkeley_twitter_hide_footer']) ? ' nofooter' : NULL;
+  $conf['show_replies'] = ($conf['openberkeley_twitter_show_replies']) ? 'true' : 'false';
 
   if (empty($conf['username']) || empty($conf['data-widget-id']) || empty($conf['title'])) {
     return;

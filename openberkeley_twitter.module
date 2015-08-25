@@ -18,7 +18,8 @@ function openberkeley_twitter_widget() {
     'extract username pattern' => '|href\s?=\s?"https://twitter.com/([^"]+)"|',
     'extract data-widget-id pattern' => '|data-widget-id\s?=\s?"([^"]+)"|',
     'extract title pattern' => '|data-widget-id\s?=\s?"[^"]+">([^<]+)|',
-    'embed template' => '<a class="twitter-timeline" href="https://twitter.com/[username]" data-widget-id="[data-widget-id]">[title]</a><script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?\'http\':\'https\';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>',
+    'embed template' => '<a class="twitter-follow-button" href="https://twitter.com/[username]"> Follow @[username]</a><br/>' . '<a class="twitter-timeline" href="https://twitter.com/[username]" data-screen-name=[username] data-widget-id="[data-widget-id]" data-chrome="transparent noborder noheader[nofooter]" data-tweet-limit="[openberkeley_twitter_number_tweets]" data-show-replies="[show_replies]">[title]</a><script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?\'http\':\'https\';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>',
+    //<a class="twitter-follow-button" href="https://twitter.com/[username]"> Follow @[username]</a>',
     'embed callback' => 'openberkeley_twitter_widget_embed_callback'
   );
 }
