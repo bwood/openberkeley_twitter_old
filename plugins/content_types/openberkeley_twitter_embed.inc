@@ -92,7 +92,7 @@ function openberkeley_twitter_openberkeley_twitter_embed_content_type_edit_form_
 
   // Don't expect the embed code/patterns to change so hardcoding...
   $patterns = array(
-    'username',
+    'href-path',
     'data-widget-id',
     'title'
   );
@@ -122,7 +122,7 @@ function openberkeley_twitter_openberkeley_twitter_embed_content_type_edit_form_
   $widget = openberkeley_twitter_widget();
 
   // save the embed code for revalidation in the render stage
-  $form_state['conf']['username'] = call_user_func($widget['extract element callback'], $form_state['values']['openberkeley_twitter_embed_code'], $widget['extract username pattern']);
+  $form_state['conf']['href-path'] = call_user_func($widget['extract element callback'], $form_state['values']['openberkeley_twitter_embed_code'], $widget['extract href-path pattern']);
   $form_state['conf']['data-widget-id'] = call_user_func($widget['extract element callback'], $form_state['values']['openberkeley_twitter_embed_code'], $widget['extract data-widget-id pattern']);
 
   // stash all the other values under the conf key
@@ -134,7 +134,7 @@ function openberkeley_twitter_openberkeley_twitter_embed_content_type_edit_form_
   if ($form_state['values']['override_title'] !=1 ) {
     $form_state['values']['override_title'] = 1;
   }
-  $default_title_text = 'Twitter @' . $form_state['conf']['username'];
+  $default_title_text = 'Twitter @' . $form_state['conf']['href-path'];
   if (empty($form_state['values']['override_title_text']) || ($form_state['values']['override_title_text'] == $default_title_text) ) {
     $form_state['values']['override_title_text'] = $default_title_text;
   }
@@ -148,15 +148,17 @@ function openberkeley_twitter_openberkeley_twitter_embed_content_type_render($su
   $widget = openberkeley_twitter_widget();
 
   // For security purposes, we re-validate the data before rendering.
-  $conf['username'] = call_user_func($widget['extract element callback'], $conf['openberkeley_twitter_embed_code'], $widget['extract username pattern']);
+  $conf['href-path'] = call_user_func($widget['extract element callback'], $conf['openberkeley_twitter_embed_code'], $widget['extract href-path pattern']);
   $conf['data-widget-id'] = call_user_func($widget['extract element callback'], $conf['openberkeley_twitter_embed_code'], $widget['extract data-widget-id pattern']);
   $conf['title'] = call_user_func($widget['extract element callback'], $conf['openberkeley_twitter_embed_code'], $widget['extract title pattern']);
   $conf['nofooter'] = ($conf['openberkeley_twitter_hide_footer']) ? ' nofooter' : NULL;
   $conf['show_replies'] = ($conf['openberkeley_twitter_show_replies']) ? 'true' : 'false';
 
-  if (empty($conf['username']) || empty($conf['data-widget-id']) || empty($conf['title'])) {
+  if (empty($conf['href-path']) || empty($conf['data-widget-id']) || empty($conf['title'])) {
     return;
   }
+
+  openberkeley_twitter_widget_href_types($conf, $conf['href-path']);
 
   // Generate the embed code.
   $embed = call_user_func($widget['embed callback'], $conf, $widget['embed template']);
