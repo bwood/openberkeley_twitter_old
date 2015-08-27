@@ -19,7 +19,7 @@ function openberkeley_twitter_widget() {
     'extract data-widget-id pattern' => '|data-widget-id\s?=\s?"([^"]+)"|',
     'extract title pattern' => '|data-widget-id\s?=\s?"[^"]+">([^<]+)|',
     'embed callback' => 'openberkeley_twitter_widget_embed_callback',
-    'embed template' => '[checked_follow-button]<a class="twitter-timeline" href="https://twitter.com/[href-path]"[data-screen-name] data-widget-id="[data-widget-id]" data-chrome="transparent noborder noheader[nofooter]" data-tweet-limit="[openberkeley_twitter_number_tweets]" data-show-replies="[show_replies]">[title]</a><script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?\'http\':\'https\';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>',
+    'embed template' => '[checked_follow-button]<a class="twitter-timeline" href="https://twitter.com/[href-path]"[checked_data-screen-name] data-widget-id="[data-widget-id]" data-chrome="transparent noborder noheader[nofooter]" data-tweet-limit="[openberkeley_twitter_number_tweets]" data-show-replies="[show_replies]">[title]</a><script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?\'http\':\'https\';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>',
   );
 }
 
@@ -48,31 +48,84 @@ function openberkeley_twitter_widget_extract_element_callback($input, $pattern) 
 }
 
 /**
- * Set up template token values based on the type of twitter widget
+ * Provide type and title of Twitter widget
  *
- * @param $conf
- * @param $href-path
+ * @param $href_path
+ * @param $title
+ * @return array
  */
-function openberkeley_twitter_widget_href_types(&$conf, $href_path) {
+function openberkeley_twitter_widget_info($href_path, $title) {
   $parts = explode('/', $href_path);
   if (count($parts) == 1) {
-    $conf['username'] = $parts[0];
+    return array(
+      'type' => 'user_timeline',
+      'title' => '@' . $parts[0],
+      'username' => $parts[0]
+    );
+
   }
   if (count($parts) == 2) {
     if ($parts[1] == 'favorites') {
-      $conf['username'] = $parts[0];
+      return array(
+        'type' => 'favorites_timeline',
+        'title' => '@' . $parts[0] . "'s Favorite Tweets",
+        'username' => $parts[0]
+      );
+
+    }
+    elseif ($parts[0] == 'hashtag') {
+      return array(
+        'type' => 'search_timeline',
+        'title' => '#' . $parts[1],
+        'hashtag' => $parts[1]
+      );
     }
   }
+  if (count($parts) == 3) {
+    if ($parts[1] == 'lists') {
+      return array(
+        'type' => 'list_timeline',
+        'title' => '@' . $parts[0] . "'s " . $parts[2] . " list",
+        'username' => $parts[0],
+        'list_name' => $parts[2]
+      );
 
-  if (!empty($conf['username'])) {
-    $conf['data-screen-name'] = ' data-screen-name=' . check_plain($conf['username']);
-    $conf['checked_follow-button'] = '<a class="twitter-follow-button" href="https://twitter.com/' . check_plain($conf['username']) . '"> Follow @' . check_plain($conf['username']) . '</a><br />';
-  }
-  else {
-    $conf['data-screen-name'] = '';
-    $conf['checked_follow-button'] = '';
-  }
+    }
+    elseif ($parts[1] == 'timelines') {
+      return array(
+        'type' => 'collection_timeline',
+        'title' => '@' . $parts[0] . "'s " . $title . " collection",
+        'collection_name' => $title
+      );
 
+    }
+  }
+}
+
+/**
+ * Set up template token values based on the type of twitter widget
+ *
+ * @param $conf
+ * @param $href_path
+ */
+function openberkeley_twitter_widget_types_tokens(&$conf, $href_path, $title) {
+
+  $widget_info = openberkeley_twitter_widget_info($href_path, $title);
+
+  switch ($widget_info['type']) {
+
+    case 'user_timeline':
+    case 'favorites_timeline':
+      $conf['username'] = $widget_info['username'];
+      $conf['checked_data-screen-name'] = ' data-screen-name="' . check_plain($conf['username']) .'"';
+      $conf['checked_follow-button'] = '<a class="twitter-follow-button" href="https://twitter.com/' . check_plain($conf['username']) . '">Follow @' . check_plain($conf['username']) . '</a><br />';
+      break;
+
+    default:
+      $conf['checked_data-screen-name'] = '';
+      $conf['checked_follow-button'] = '';
+      break;
+  }
 }
 
 /**

@@ -124,7 +124,7 @@ function openberkeley_twitter_openberkeley_twitter_embed_content_type_edit_form_
   // save the embed code for revalidation in the render stage
   $form_state['conf']['href-path'] = call_user_func($widget['extract element callback'], $form_state['values']['openberkeley_twitter_embed_code'], $widget['extract href-path pattern']);
   $form_state['conf']['data-widget-id'] = call_user_func($widget['extract element callback'], $form_state['values']['openberkeley_twitter_embed_code'], $widget['extract data-widget-id pattern']);
-
+  $form_state['conf']['title'] = call_user_func($widget['extract element callback'], $form_state['values']['openberkeley_twitter_embed_code'], $widget['extract title pattern']);
   // stash all the other values under the conf key
   foreach ($form_state['values'] as $key => $value) {
     $form_state['conf'][$key] = $value;
@@ -134,7 +134,8 @@ function openberkeley_twitter_openberkeley_twitter_embed_content_type_edit_form_
   if ($form_state['values']['override_title'] !=1 ) {
     $form_state['values']['override_title'] = 1;
   }
-  $default_title_text = 'Twitter @' . $form_state['conf']['href-path'];
+  $twitter_widget_info = openberkeley_twitter_widget_info($form_state['conf']['href-path'], $form_state['conf']['title']);
+  $default_title_text = 'Twitter: ' . $twitter_widget_info['title'];
   if (empty($form_state['values']['override_title_text']) || ($form_state['values']['override_title_text'] == $default_title_text) ) {
     $form_state['values']['override_title_text'] = $default_title_text;
   }
@@ -158,11 +159,10 @@ function openberkeley_twitter_openberkeley_twitter_embed_content_type_render($su
     return;
   }
 
-  openberkeley_twitter_widget_href_types($conf, $conf['href-path']);
+  openberkeley_twitter_widget_types_tokens($conf, $conf['href-path'], $conf['title']);
 
   // Generate the embed code.
   $embed = call_user_func($widget['embed callback'], $conf, $widget['embed template']);
-
   $pane = new stdClass();
   //$pane->content = '<a class="twitter-timeline" href="https://twitter.com/getbwood" data-widget-id="419169885516599296">Tweets by @getbwood</a><script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?\'http\':\'https\';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>';
   $pane->content = $embed;
