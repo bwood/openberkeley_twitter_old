@@ -115,9 +115,16 @@ function openberkeley_twitter_widget_types_tokens(&$conf, $href_path, $title) {
   switch ($widget_info['type']) {
 
     case 'user_timeline':
+      $conf['username'] = $widget_info['username'];
+      // data-screen-name required for data-tweet-limit to work on a user
+      // timeline, I believe.
+      $conf['checked_data-screen-name'] = ' data-screen-name="' . check_plain($conf['username']) .'"';
+      $conf['checked_follow-button'] = '<a class="twitter-follow-button" href="https://twitter.com/' . check_plain($conf['username']) . '">Follow @' . check_plain($conf['username']) . '</a><br />';
+      break;
+
     case 'favorites_timeline':
       $conf['username'] = $widget_info['username'];
-      $conf['checked_data-screen-name'] = ' data-screen-name="' . check_plain($conf['username']) .'"';
+      $conf['checked_data-screen-name'] = '';
       $conf['checked_follow-button'] = '<a class="twitter-follow-button" href="https://twitter.com/' . check_plain($conf['username']) . '">Follow @' . check_plain($conf['username']) . '</a><br />';
       break;
 
