@@ -2,6 +2,10 @@
 
 /**
  * Implements hook_ctools_plugin_directory()
+ *
+ * @param $module
+ * @param $plugin
+ * @return string
  */
 function openberkeley_twitter_ctools_plugin_directory($module, $plugin) {
   if ($module == 'ctools' && $plugin == 'content_types') {
@@ -10,22 +14,25 @@ function openberkeley_twitter_ctools_plugin_directory($module, $plugin) {
 }
 
 /**
- * Define info about the twitter widget
+ * Define twitter widget
  */
 function openberkeley_twitter_widget() {
   return array(
+    'patterns' => array(
+      'href-path' => '|href\s?=\s?"https://twitter.com/([^"]+)"|',
+      'data-widget-id' => '|data-widget-id\s?=\s?"([^"]+)"|',
+      'title' => '|data-widget-id\s?=\s?"[^"]+">([^<]+)|',
+    ),
     'extract element callback' => 'openberkeley_twitter_widget_extract_element_callback',
-    'extract username pattern' => '|href\s?=\s?"https://twitter.com/([^"]+)"|',
-    'extract data-widget-id pattern' => '|data-widget-id\s?=\s?"([^"]+)"|',
-    'extract title pattern' => '|data-widget-id\s?=\s?"[^"]+">([^<]+)|',
-    'embed template' => '<a class="twitter-follow-button" href="https://twitter.com/[username]"> Follow @[username]</a><br/>' . '<a class="twitter-timeline" href="https://twitter.com/[username]" data-screen-name=[username] data-widget-id="[data-widget-id]" data-chrome="transparent noborder noheader[nofooter]" data-tweet-limit="[openberkeley_twitter_number_tweets]" data-show-replies="[show_replies]">[title]</a><script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?\'http\':\'https\';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>',
-    //<a class="twitter-follow-button" href="https://twitter.com/[username]"> Follow @[username]</a>',
-    'embed callback' => 'openberkeley_twitter_widget_embed_callback'
+    'embed callback' => 'openberkeley_twitter_widget_embed_callback',
+    'embed template' => '[checked_follow-button][checked_hashtag-button]<a class="twitter-timeline" href="https://twitter.com/[href-path]"[checked_data-screen-name] data-widget-id="[data-widget-id]" data-chrome="transparent noborder noheader[nofooter]" data-tweet-limit="[openberkeley_twitter_number_tweets]" data-show-replies="[show_replies]">[title]</a><script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?\'http\':\'https\';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>',
   );
 }
 
 /**
  * Implements hook_panopoly_magic_forms_to_improve_alter().
+ *
+ * @param $form_ids
  */
 function openberkeley_twitter_panopoly_magic_forms_to_improve_alter(&$form_ids) {
   $form_ids[] = 'openberkeley_twitter_openberkeley_twitter_embed_content_type_edit_form';
@@ -49,6 +56,105 @@ function openberkeley_twitter_widget_extract_element_callback($input, $pattern) 
 }
 
 /**
+ * Provide type and other info specific to Twitter widget.
+ *
+ * @param $href_path
+ * @param $title
+ * @return array
+ */
+function openberkeley_twitter_widget_info($href_path, $title) {
+  $parts = explode('/', $href_path);
+  if (count($parts) == 1) {
+    return array(
+      'type' => 'user_timeline',
+      'title' => '@' . $parts[0],
+      'username' => $parts[0]
+    );
+
+  }
+  if (count($parts) == 2) {
+    if ($parts[1] == 'favorites') {
+      return array(
+        'type' => 'favorites_timeline',
+        'title' => '@' . $parts[0] . "'s favorite tweets",
+        'username' => $parts[0]
+      );
+
+    }
+    elseif ($parts[0] == 'hashtag') {
+      return array(
+        'type' => 'search_timeline',
+        'title' => '#' . $parts[1],
+        'hashtag' => $parts[1]
+      );
+    }
+  }
+  if (count($parts) == 3) {
+    if ($parts[1] == 'lists') {
+      return array(
+        'type' => 'list_timeline',
+        'title' => '@' . $parts[0] . "'s " . $parts[2] . " list",
+        'username' => $parts[0],
+        'list_name' => $parts[2]
+      );
+
+    }
+    elseif ($parts[1] == 'timelines') {
+      return array(
+        'type' => 'collection_timeline',
+        'title' => '@' . $parts[0] . "'s " . $title . " collection",
+        'username' => $parts[0],
+        'collection_name' => $title
+      );
+
+    }
+  }
+}
+
+/**
+ * Set up template token values based on the type of twitter widget
+ *
+ * @param $conf
+ * @param $href_path
+ * @param $title
+ */
+
+function openberkeley_twitter_widget_types_tokens(&$conf, $href_path, $title) {
+
+  $widget_info = openberkeley_twitter_widget_info($href_path, $title);
+
+  $conf['checked_data-screen-name'] = '';
+  $conf['checked_follow-button'] = '';
+  $conf['checked_hashtag-button'] = '';
+
+  switch ($widget_info['type']) {
+
+    case 'user_timeline':
+      $conf['username'] = $widget_info['username'];
+      // data-screen-name required for data-tweet-limit to work on a user
+      // timeline, I believe.
+      $conf['checked_data-screen-name'] = ' data-screen-name="' . check_plain($conf['username']) . '"';
+      $conf['checked_follow-button'] = '<a class="twitter-follow-button" href="https://twitter.com/' . check_plain($conf['username']) . '">Follow @' . check_plain($conf['username']) . '</a><br />';
+      break;
+
+    case 'favorites_timeline':
+    case 'collection_timeline':
+    case 'list_timeline':
+      $conf['username'] = $widget_info['username'];
+      // data-screen-name should be null to prevent screwing up favorites.
+      // it's not needed for collection or list.
+      $conf['checked_data-screen-name'] = '';
+      $conf['checked_follow-button'] = '<a class="twitter-follow-button" href="https://twitter.com/' . check_plain($conf['username']) . '">Follow @' . check_plain($conf['username']) . '</a><br />';
+      break;
+
+    case 'search_timeline':
+      $conf['checked_hashtag-button'] = '<a href="https://twitter.com/intent/tweet?button_hashtag=' . check_plain($widget_info['hashtag']) . '" class="twitter-hashtag-button" data-related="getbwood">Tweet #TwitterStories</a><script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?\'http\':\'https\';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+\'://platform.twitter.com/widgets.js\';fjs.parentNode.insertBefore(js,fjs);}}(document, \'script\', \'twitter-wjs\');</script>';
+      $conf['nofooter'] = ' nofooter';
+      break;
+  }
+}
+
+/**
  * Generates the widget embed code using a simple template.
  *
  * @param array $config
@@ -62,7 +168,13 @@ function openberkeley_twitter_widget_extract_element_callback($input, $pattern) 
 function openberkeley_twitter_widget_embed_callback($config, $template) {
   $replacements = array();
   foreach ($config as $name => $value) {
-    $replacements['[' . $name . ']'] = check_plain($value);
+    if (preg_match("/^checked_/", $name)) {
+      // Don't check_plain() if the token name begins with checked_
+      $replacements['[' . $name . ']'] = $value;
+    }
+    else {
+      $replacements['[' . $name . ']'] = check_plain($value);
+    }
   }
 
   return strtr($template, $replacements);
