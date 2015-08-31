@@ -23,8 +23,10 @@
 
   Drupal.behaviors.openberkeley_twitter = {
     attach: function (context, settings) {
-      if (typeof twttr.widgets !== 'undefined') {
-        twttr.widgets.load();
+      if ($(".twitter-timeline", context).length > 0) {
+        if (typeof twttr.widgets !== 'undefined') {
+          twttr.widgets.load();
+        }
       }
     }
   };
