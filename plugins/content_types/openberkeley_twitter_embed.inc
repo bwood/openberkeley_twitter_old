@@ -102,6 +102,13 @@ EOT;
     '#description' => t('Paste your Twitter embed code here.'),
     '#default_value' => !empty($conf['openberkeley_twitter_embed_code']) ? $conf['openberkeley_twitter_embed_code'] : '',
   );
+  $form['openberkeley_twitter_container']['openberkeley_twitter_update_preview'] = array(
+    '#type' => 'button',
+    '#value' => t('Update Preview'),
+    '#name' => 'update_preview',
+    '#limit_validation_errors' => array(),
+    '#submit' => '',
+  );
   return $form;
 }
 
