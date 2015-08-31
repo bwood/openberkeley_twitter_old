@@ -27,9 +27,14 @@ function openberkeley_twitter_openberkeley_twitter_embed_content_type_edit_form(
    <ol>
     <li>$login_link using the account for which you'd like to embed data.</li>
     <li>Visit $widgets_link and choose "Create New." ($timeline_types widgets are all supported.)</li>
-    <li>Recommended: Uncheck auto-expand photos.</li>
-    <li>Recommended: Do not change height, theme or link color.</li>
-    <li>Click the "Save Changes" button.</li>
+    <li>Recommended widget configuration:</li>
+    <ul>
+      <li>Exclude replies can be left un-checked.  This can be controlled in the form below.</li>
+      <li>If a check box called "Safe Search mode" appears, check it.</li>
+      <li>Uncheck auto-expand photos.</li>
+      <li>Do not change height, theme or link color.</li>
+    </ul>
+    <li>Click the "Create New" button. (If you are editing a widget this button will say "Save Changes.")</li>
     <li>Select all of the code in the box appearing above "Copy and paste the code into the HTML of your site."</li>
     <ul>
       <li><i>Note: If you attempt to specify customizations to data-chrome or other elements in your anchor tag, they will be ignored.</i>
