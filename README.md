@@ -16,4 +16,4 @@ Provides form controls for specifying:
 * Show your replies to others (checkbox)
 * Hide tweetbox at bottom of timeline (checkbox)
 
-(This module should may eventually be merged into openberkeley_widgets.)
+(This module may eventually be merged into openberkeley_widgets.)
