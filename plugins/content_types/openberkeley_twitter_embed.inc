@@ -20,16 +20,21 @@ $plugin = array(
 function openberkeley_twitter_openberkeley_twitter_embed_content_type_edit_form($form, &$form_state) {
 
   $login_link = l("Login to Twitter", 'https://twitter.com', array("attributes" => array("target" => "_twitter")));
-  $widgets_link = l("https://twitter.com/settings/widgets","https://twitter.com/settings/widgets", array("attributes" => array("target" => "_twitter")));
+  $widgets_link = l("https://twitter.com/settings/widgets", "https://twitter.com/settings/widgets", array("attributes" => array("target" => "_twitter")));
   $timeline_types = l("Timeline, Favorites, List, Search and Collection", "https://dev.twitter.com/web/embedded-timelines", array("attributes" => array("target" => "_twitter_docs")));
-  $instructions =<<<EOT
+  $instructions = <<<EOT
  <div>
    <ol>
     <li>$login_link using the account for which you'd like to embed data.</li>
     <li>Visit $widgets_link and choose "Create New." ($timeline_types widgets are all supported.)</li>
-    <li>Recommended: Uncheck auto-expand photos.</li>
-    <li>Recommended: Do not change height, theme or link color.</li>
-    <li>Click the "Save Changes" button.</li>
+    <li>Recommended widget configuration:</li>
+    <ul>
+      <li>Exclude replies can be left un-checked.  This can be controlled in the form below.</li>
+      <li>If a check box called "Safe Search mode" appears, check it.</li>
+      <li>Uncheck auto-expand photos.</li>
+      <li>Do not change height, theme or link color.</li>
+    </ul>
+    <li>Click the "Create New" button. (If you are editing a widget this button will say "Save Changes.")</li>
     <li>Select all of the code in the box appearing above "Copy and paste the code into the HTML of your site."</li>
     <ul>
       <li><i>Note: If you attempt to specify customizations to data-chrome or other elements in your anchor tag, they will be ignored.</i>
@@ -61,7 +66,23 @@ EOT;
     '#title' => t('Number of tweets to display'),
     '#description' => t(''),
     '#default_value' => (isset($conf['openberkeley_twitter_number_tweets']) && !empty($conf['openberkeley_twitter_number_tweets'])) ? $conf['openberkeley_twitter_number_tweets'] : 3,
-    '#options' => array(1=>1,2=>2,3=>3,4=>4,5=>5,6=>6,7=>7,8=>8,9=>9,10=>10,11=>11,12=>12,13=>13,14=>14,15=>15),
+    '#options' => array(
+      1 => 1,
+      2 => 2,
+      3 => 3,
+      4 => 4,
+      5 => 5,
+      6 => 6,
+      7 => 7,
+      8 => 8,
+      9 => 9,
+      10 => 10,
+      11 => 11,
+      12 => 12,
+      13 => 13,
+      14 => 14,
+      15 => 15
+    ),
   );
   $form['openberkeley_twitter_container']['openberkeley_twitter_show_replies'] = array(
     '#type' => 'checkbox',
@@ -81,34 +102,33 @@ EOT;
     '#description' => t('Paste your Twitter embed code here.'),
     '#default_value' => !empty($conf['openberkeley_twitter_embed_code']) ? $conf['openberkeley_twitter_embed_code'] : '',
   );
+  $form['openberkeley_twitter_container']['openberkeley_twitter_update_preview'] = array(
+    '#type' => 'button',
+    '#value' => t('Update Preview'),
+    '#name' => 'update_preview',
+    '#limit_validation_errors' => array(),
+    '#submit' => '',
+  );
   return $form;
 }
 
 /**
  * Form validation callback for openberkeley_twitter_embed_content_type_edit_form().
+ *
+ * @param $form
+ * @param $form_state
+ * @return bool
  */
 function openberkeley_twitter_openberkeley_twitter_embed_content_type_edit_form_validate($form, &$form_state) {
   $widget = openberkeley_twitter_widget();
 
-  // Don't expect the embed code/patterns to change so hardcoding...
-  $patterns = array(
-    'username',
-    'data-widget-id',
-    'title'
-  );
-  foreach ($patterns as $type) {
-    if (!call_user_func($widget['extract element callback'], $form_state['values']['openberkeley_twitter_embed_code'], $widget["extract $type pattern"])) {
+  foreach (array_keys($widget['patterns']) as $type) {
+    if (!call_user_func($widget['extract element callback'], $form_state['values']['openberkeley_twitter_embed_code'], $widget['patterns'][$type])) {
       form_set_error('link', t('Invalid Twitter embed code.'));
       return TRUE;
     }
   }
 
-  /*
-  $height = $form_state['values']['height'];
-  if (!is_numeric($height) || intval($height) != $height || intval($height) < 0) {
-    form_set_error('height', t('Height must be a positive, whole number.'));
-  }
- */
   return TRUE;
 }
 
@@ -122,8 +142,9 @@ function openberkeley_twitter_openberkeley_twitter_embed_content_type_edit_form_
   $widget = openberkeley_twitter_widget();
 
   // save the embed code for revalidation in the render stage
-  $form_state['conf']['username'] = call_user_func($widget['extract element callback'], $form_state['values']['openberkeley_twitter_embed_code'], $widget['extract username pattern']);
-  $form_state['conf']['data-widget-id'] = call_user_func($widget['extract element callback'], $form_state['values']['openberkeley_twitter_embed_code'], $widget['extract data-widget-id pattern']);
+  foreach ($widget['patterns'] as $type => $pattern) {
+    $form_state['conf'][$type] = call_user_func($widget['extract element callback'], $form_state['values']['openberkeley_twitter_embed_code'], $pattern);
+  }
 
   // stash all the other values under the conf key
   foreach ($form_state['values'] as $key => $value) {
@@ -131,11 +152,12 @@ function openberkeley_twitter_openberkeley_twitter_embed_content_type_edit_form_
   }
 
   // Provide a default pane title
-  if ($form_state['values']['override_title'] !=1 ) {
+  if ($form_state['values']['override_title'] != 1) {
     $form_state['values']['override_title'] = 1;
   }
-  $default_title_text = 'Twitter @' . $form_state['conf']['username'];
-  if (empty($form_state['values']['override_title_text']) || ($form_state['values']['override_title_text'] == $default_title_text) ) {
+  $twitter_widget_info = openberkeley_twitter_widget_info($form_state['conf']['href-path'], $form_state['conf']['title']);
+  $default_title_text = 'Twitter: ' . $twitter_widget_info['title'];
+  if (empty($form_state['values']['override_title_text']) || ($form_state['values']['override_title_text'] == $default_title_text)) {
     $form_state['values']['override_title_text'] = $default_title_text;
   }
 
@@ -143,24 +165,31 @@ function openberkeley_twitter_openberkeley_twitter_embed_content_type_edit_form_
 
 /**
  * Render callback for the openberkeley_twitter_embed content type.
+ *
+ * @param $subtype
+ * @param $conf
+ * @param $args
+ * @param $context
+ * @return \stdClass|void
  */
 function openberkeley_twitter_openberkeley_twitter_embed_content_type_render($subtype, $conf, $args, $context) {
   $widget = openberkeley_twitter_widget();
 
   // For security purposes, we re-validate the data before rendering.
-  $conf['username'] = call_user_func($widget['extract element callback'], $conf['openberkeley_twitter_embed_code'], $widget['extract username pattern']);
-  $conf['data-widget-id'] = call_user_func($widget['extract element callback'], $conf['openberkeley_twitter_embed_code'], $widget['extract data-widget-id pattern']);
-  $conf['title'] = call_user_func($widget['extract element callback'], $conf['openberkeley_twitter_embed_code'], $widget['extract title pattern']);
+  foreach ($widget['patterns'] as $type => $pattern) {
+    $conf[$type] = call_user_func($widget['extract element callback'], $conf['openberkeley_twitter_embed_code'], $pattern);
+  }
   $conf['nofooter'] = ($conf['openberkeley_twitter_hide_footer']) ? ' nofooter' : NULL;
   $conf['show_replies'] = ($conf['openberkeley_twitter_show_replies']) ? 'true' : 'false';
 
-  if (empty($conf['username']) || empty($conf['data-widget-id']) || empty($conf['title'])) {
+  if (empty($conf['href-path']) || empty($conf['data-widget-id']) || empty($conf['title'])) {
     return;
   }
 
+  openberkeley_twitter_widget_types_tokens($conf, $conf['href-path'], $conf['title']);
+
   // Generate the embed code.
   $embed = call_user_func($widget['embed callback'], $conf, $widget['embed template']);
-
   $pane = new stdClass();
   //$pane->content = '<a class="twitter-timeline" href="https://twitter.com/getbwood" data-widget-id="419169885516599296">Tweets by @getbwood</a><script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?\'http\':\'https\';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>';
   $pane->content = $embed;
