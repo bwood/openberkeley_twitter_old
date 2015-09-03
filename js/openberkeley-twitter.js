@@ -30,18 +30,32 @@
 
   // Get the contents of an iframe in a cross-browser way.
   function getIframeContent(iframe) {
-    return getIframeDocument(iframe).documentElement.innerHTML;
+    var documentElement = getIframeDocument(iframe).documentElement,
+        content = documentElement.innerHTML,
+        attrs = {}, i;
+
+    // Copy all the attributes off the <html> tag so we can add them back.
+    for (i = 0; i < documentElement.attributes.length; i++) {
+      attrs[documentElement.attributes[i].nodeName] = documentElement.attributes[i].nodeValue;
+    }
+
+    return {content: content, attrs: attrs};
   }
 
   // Copies the contents of one iframe to another.
   function replaceIframeContent(dst, content) {
-    var frameDocument = getIframeDocument(dst);
+    var frameDocument = getIframeDocument(dst), name;
 
     frameDocument.open();
     frameDocument.writeln('<html>');
-    frameDocument.writeln(content);
+    frameDocument.writeln(content.content);
     frameDocument.writeln('</html>');
     frameDocument.close();
+
+    // Add back the attributes to the <html> tag.
+    for (name in content.attrs) {
+      frameDocument.documentElement.setAttribute(name, content.attrs[name]);
+    }
   }
 
   Drupal.behaviors.openberkeley_twitter = {
