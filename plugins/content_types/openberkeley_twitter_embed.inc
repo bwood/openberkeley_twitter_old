@@ -19,39 +19,41 @@ $plugin = array(
  */
 function openberkeley_twitter_openberkeley_twitter_embed_content_type_edit_form($form, &$form_state) {
 
-  $login_link = l("Login to Twitter", 'https://twitter.com', array("attributes" => array("target" => "_twitter")));
-  $widgets_link = l("https://twitter.com/settings/widgets", "https://twitter.com/settings/widgets", array("attributes" => array("target" => "_twitter")));
-  $timeline_types = l("Timeline, Favorites, List, Search and Collection", "https://dev.twitter.com/web/embedded-timelines", array("attributes" => array("target" => "_twitter_docs")));
-  $instructions = <<<EOT
+  $login_link = l(t("Login to Twitter"), 'https://twitter.com', array("attributes" => array("target" => "_twitter")));
+  $widgets_link = l(t("https://twitter.com/settings/widgets"), "https://twitter.com/settings/widgets", array("attributes" => array("target" => "_twitter")));
+  $timeline_types = l(t("Timeline, Favorites, List, Search and Collection"), "https://dev.twitter.com/web/embedded-timelines", array("attributes" => array("target" => "_twitter_docs")));
+  //TODO: Best practice is to use placeholders in t() for the links as opposed to variable subsititution.
+  // Doing this caused the link html to be converted to htmlentities.
+  $instructions = "
  <div>
    <ol>
-    <li>$login_link using the account for which you'd like to embed data.</li>
-    <li>Visit $widgets_link and choose "Create New." ($timeline_types widgets are all supported.)</li>
-    <li>Recommended widget configuration:</li>
+    <li>$login_link " . t("using the account for which you'd like to embed data.") . "</li>
+    <li>" . t("Visit") . " $widgets_link " . t("and choose \"Create New.\"") . " ($timeline_types " . t("widgets are all supported.") .  ")</li>
+    <li>" . t("Recommended widget configuration:") . "</li>
     <ul>
-      <li>Exclude replies can be left un-checked.  This can be controlled in the form below.</li>
-      <li>If a check box called "Safe Search mode" appears, check it.</li>
-      <li>Uncheck auto-expand photos.</li>
-      <li>Do not change height, theme or link color.</li>
+      <li>" . t("Exclude replies can be left un-checked.  This can be controlled in the form below.") . "</li>
+      <li>" . t("If a check box called \"Safe Search mode\" appears, check it.") . "</li>
+      <li>" . t("Uncheck auto-expand photos.") . "</li>
+      <li>" . t("Do not change height, theme or link color.") . "</li>
     </ul>
-    <li>Click the "Create New" button. (If you are editing a widget this button will say "Save Changes.")</li>
-    <li>Select all of the code in the box appearing above "Copy and paste the code into the HTML of your site."</li>
+    <li>" . t("Click the \"Create New\" button. (If you are editing a widget this button will say \"Save Changes.\")") . "</li>
+    <li>" . t("Select all of the code in the box appearing above \"Copy and paste the code into the HTML of your site.\"") . "</li>
     <ul>
-      <li><i>Note: If you attempt to specify customizations to data-chrome or other elements in your anchor tag, they will be ignored.</i>
+      <li><i>" . t("Note: If you attempt to specify customizations to data-chrome or other elements in your anchor tag, they will be ignored.") . "</i>
       </li>
     </ul>
-    <li>Paste the code into the "Twitter embed code" box here.</li>
-    <li>Click Save.</li>
+    <li>" . t("Paste the code into the \"Twitter embed code\" box here.") . "</li>
+    <li>" . t("Click Save.") . "</li>
   </ol>
  </div>
-EOT;
+";
 
   $conf = $form_state['conf'];
   $form['openberkeley_twitter_container'] = array(
     '#type' => 'fieldset',
     '#tree' => FALSE,
     '#title' => t('Twitter Settings'),
-    '#description' => t(''),
+    '#description' => '',
     '#collapsible' => FALSE,
     '#collapsed' => FALSE,
     '#weight' => -100
@@ -64,7 +66,7 @@ EOT;
     '#type' => 'select',
     '#required' => TRUE,
     '#title' => t('Number of tweets to display'),
-    '#description' => t(''),
+    '#description' => '',
     '#default_value' => (isset($conf['openberkeley_twitter_number_tweets']) && !empty($conf['openberkeley_twitter_number_tweets'])) ? $conf['openberkeley_twitter_number_tweets'] : 3,
     '#options' => array(
       1 => 1,
