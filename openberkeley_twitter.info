@@ -6,4 +6,4 @@ project = openberkeley_twitter
 dependencies[] = ctools
 dependencies[] = panopoly_magic
 scripts[] = js/openberkeley-twitter.js
-version = 7.x-0.1-beta1
+version = 7.x-0.5.3-beta1
