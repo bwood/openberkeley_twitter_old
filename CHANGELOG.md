@@ -1,3 +1,6 @@
+# openberkeley_twitter-7.x-0.5.3-beta1 #
+Make version number consistent with semantic version used for Open Berkeley.
+
 # openberkeley_twitter-7.x-0.1-beta1 #
 Inital public release.
 
