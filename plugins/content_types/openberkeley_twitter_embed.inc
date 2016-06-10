@@ -184,7 +184,8 @@ function openberkeley_twitter_openberkeley_twitter_embed_content_type_render($su
   $conf['nofooter'] = ($conf['openberkeley_twitter_hide_footer']) ? ' nofooter' : NULL;
   $conf['show_replies'] = ($conf['openberkeley_twitter_show_replies']) ? 'true' : 'false';
 
-  if (empty($conf['href-path']) || empty($conf['data-widget-id']) || empty($conf['title'])) {
+  //if (empty($conf['href-path']) || empty($conf['data-widget-id']) || empty($conf['title'])) {
+  if (empty($conf['href-path']) || empty($conf['title'])) {
     return;
   }
 
@@ -205,13 +206,16 @@ function openberkeley_twitter_widget() {
   return array(
     'patterns' => array(
       'href-path' => '|href\s?=\s?"https://twitter.com/([^"]+)"|',
-      'data-widget-id' => '|data-widget-id\s?=\s?"([^"]+)"|',
-      'title' => '|data-widget-id\s?=\s?"[^"]+">([^<]+)|',
+      //'data-widget-id' => '|data-widget-id\s?=\s?"([^"]+)"|',
+      //'title' => '|data-widget-id\s?=\s?"[^"]+">([^<]+)|',
+      'title' => '|<a[^>]+>([^<]+)</a>|',
+
     ),
     'extract element callback' => 'openberkeley_twitter_widget_extract_element_callback',
     'embed callback' => 'openberkeley_twitter_widget_embed_callback',
     // tokens beginning with 'checked_' reference values which have already been parsed with check_plain()
-    'embed template' => '[checked_follow-button][checked_hashtag-button]<a class="twitter-timeline" href="https://twitter.com/[href-path]"[checked_data-screen-name] data-widget-id="[data-widget-id]" data-chrome="transparent noborder noheader[nofooter]" data-tweet-limit="[openberkeley_twitter_number_tweets]" data-show-replies="[show_replies]">[title]</a><script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?\'http\':\'https\';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>',
+    //'embed template' => '[checked_follow-button][checked_hashtag-button]<a class="twitter-timeline" href="https://twitter.com/[href-path]"[checked_data-screen-name] data-widget-id="[data-widget-id]" data-chrome="transparent noborder noheader[nofooter]" data-tweet-limit="[openberkeley_twitter_number_tweets]" data-show-replies="[show_replies]">[title]</a><script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?\'http\':\'https\';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>',
+    'embed template' => '<a class="twitter-timeline" href="https://twitter.com/[href-path]">[title]</a> <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>',
   );
 }
 
