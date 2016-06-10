@@ -1,0 +1,15 @@
+<?php
+
+/**
+ * Implements hook_ctools_plugin_directory()
+ *
+ * @param $module
+ * @param $plugin
+ * @return string
+ */
+function openberkeley_twitter_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'ctools' && $plugin == 'content_types') {
+    return 'plugins/' . $plugin;
+  }
+}
+

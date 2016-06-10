@@ -1,0 +1,9 @@
+name = Open Berkeley Twitter
+description = Creates panels widget for embedding Twitter widgets
+core = 7.x
+package = Open Berkeley
+project = openberkeley_twitter
+dependencies[] = ctools
+dependencies[] = panopoly_magic
+scripts[] = js/openberkeley-twitter.js
+version = 7.x-0.5.3-beta1
