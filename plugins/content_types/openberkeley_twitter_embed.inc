@@ -28,7 +28,7 @@ function openberkeley_twitter_openberkeley_twitter_embed_content_type_edit_form(
  <div>
    <ol>
     <li>$login_link " . t("using the account for which you'd like to embed data.") . "</li>
-    <li>" . t("Visit") . " $widgets_link " . t("and choose \"Create New.\"") . " ($timeline_types " . t("widgets are all supported.") .  ")</li>
+    <li>" . t("Visit") . " $widgets_link " . t("and choose \"Create New.\"") . " ($timeline_types " . t("widgets are all supported.") . ")</li>
     <li>" . t("Recommended widget configuration:") . "</li>
     <ul>
       <li>" . t("Exclude replies can be left un-checked.  This can be controlled in the form below.") . "</li>
@@ -94,8 +94,8 @@ function openberkeley_twitter_openberkeley_twitter_embed_content_type_edit_form(
   );
   $form['openberkeley_twitter_container']['openberkeley_twitter_hide_footer'] = array(
     '#type' => 'checkbox',
-    '#title' => t('Hide tweet box'),
-    '#description' => t('Check this to hide the tweet composer box at the bottom of your timeline.'),
+    '#title' => t('Hide footer'),
+    '#description' => t('Check this to hide the Twitter links at the bottom of the tweet list.'),
     '#default_value' => (isset($conf['openberkeley_twitter_hide_footer']) && !empty($conf['openberkeley_twitter_hide_footer'])) ? $conf['openberkeley_twitter_hide_footer'] : FALSE,
   );
   $form['openberkeley_twitter_container']['openberkeley_twitter_embed_code'] = array(
@@ -181,6 +181,7 @@ function openberkeley_twitter_openberkeley_twitter_embed_content_type_render($su
   foreach ($widget['patterns'] as $type => $pattern) {
     $conf[$type] = call_user_func($widget['extract element callback'], $conf['openberkeley_twitter_embed_code'], $pattern);
   }
+
   $conf['nofooter'] = ($conf['openberkeley_twitter_hide_footer']) ? ' nofooter' : NULL;
   $conf['show_replies'] = ($conf['openberkeley_twitter_show_replies']) ? 'true' : 'false';
 
@@ -215,7 +216,9 @@ function openberkeley_twitter_widget() {
     'embed callback' => 'openberkeley_twitter_widget_embed_callback',
     // tokens beginning with 'checked_' reference values which have already been parsed with check_plain()
     //'embed template' => '[checked_follow-button][checked_hashtag-button]<a class="twitter-timeline" href="https://twitter.com/[href-path]"[checked_data-screen-name] data-widget-id="[data-widget-id]" data-chrome="transparent noborder noheader[nofooter]" data-tweet-limit="[openberkeley_twitter_number_tweets]" data-show-replies="[show_replies]">[title]</a><script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?\'http\':\'https\';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>',
-    'embed template' => '<a class="twitter-timeline" href="https://twitter.com/[href-path]">[title]</a> <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>',
+    //'embed template' => '<a class="twitter-timeline" href="https://twitter.com/[href-path]">[title]</a> <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>',// works
+    //data-widget-id="profile_[checked_data-screen-name]" data-chrome="transparent noborder noheader[nofooter]"
+    'embed template' => '[checked_follow-button]<a class="twitter-timeline" href="https://twitter.com/[href-path]" data-tweet-limit="[openberkeley_twitter_number_tweets]" data-show-replies="[show_replies]" data-chrome="transparent noborder noheader[nofooter]">[title]</a> <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>',
   );
 }
 
@@ -263,7 +266,15 @@ function openberkeley_twitter_widget_info($href_path, $title) {
 
   }
   if (count($parts) == 2) {
-    if ($parts[1] == 'favorites') {
+    if ($parts[1] == 'likes') {
+      return array(
+        'type' => 'favorites_timeline',
+        'title' => 'Liked by @' . $parts[0],
+        'username' => $parts[0]
+      );
+
+    }
+    elseif ($parts[1] == 'favorites') {
       return array(
         'type' => 'favorites_timeline',
         'title' => '@' . $parts[0] . "'s favorite tweets",
@@ -313,32 +324,37 @@ function openberkeley_twitter_widget_types_tokens(&$conf, $href_path, $title) {
 
   $widget_info = openberkeley_twitter_widget_info($href_path, $title);
 
+  // defaults
   $conf['checked_data-screen-name'] = '';
   $conf['checked_follow-button'] = '';
   $conf['checked_hashtag-button'] = '';
+  $conf['checked_data-screen-name'] = '';
+  $conf['username'] = $widget_info['username'];
+  $conf['checked_follow-button'] = '<a class="twitter-follow-button" href="https://twitter.com/' . check_plain($conf['username']) . '">Follow @' . check_plain($conf['username']) . '</a><br />';
+
 
   switch ($widget_info['type']) {
 
     case 'user_timeline':
-      $conf['username'] = $widget_info['username'];
       // data-screen-name required for data-tweet-limit to work on a user
       // timeline, I believe.
       // tokens beginning with 'checked_' reference values which have already been parsed with check_plain()
       $conf['checked_data-screen-name'] = ' data-screen-name="' . check_plain($conf['username']) . '"';
-      $conf['checked_follow-button'] = '<a class="twitter-follow-button" href="https://twitter.com/' . check_plain($conf['username']) . '">Follow @' . check_plain($conf['username']) . '</a><br />';
       break;
 
     case 'favorites_timeline':
     case 'collection_timeline':
     case 'list_timeline':
-      $conf['username'] = $widget_info['username'];
       // data-screen-name should be null to prevent screwing up favorites.
       // it's not needed for collection or list.
-      $conf['checked_data-screen-name'] = '';
-      $conf['checked_follow-button'] = '<a class="twitter-follow-button" href="https://twitter.com/' . check_plain($conf['username']) . '">Follow @' . check_plain($conf['username']) . '</a><br />';
+      unset($conf['checked_data-screen-name']);
       break;
 
     case 'search_timeline':
+      // no username in this context
+      unset($conf['username']);
+      // no follow button in this context
+      unset($conf['checked_follow-button']);
       $conf['checked_hashtag-button'] = '<a href="https://twitter.com/intent/tweet?button_hashtag=' . check_plain($widget_info['hashtag']) . '" class="twitter-hashtag-button" data-related="getbwood">Tweet #TwitterStories</a><script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?\'http\':\'https\';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+\'://platform.twitter.com/widgets.js\';fjs.parentNode.insertBefore(js,fjs);}}(document, \'script\', \'twitter-wjs\');</script>';
       $conf['nofooter'] = ' nofooter';
       break;
