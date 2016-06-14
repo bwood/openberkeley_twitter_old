@@ -215,9 +215,8 @@ function openberkeley_twitter_widget() {
     'extract element callback' => 'openberkeley_twitter_widget_extract_element_callback',
     'embed callback' => 'openberkeley_twitter_widget_embed_callback',
     // tokens beginning with 'checked_' reference values which have already been parsed with check_plain()
+    // old-style embed (pre-OPENUCB-1244)
     //'embed template' => '[checked_follow-button][checked_hashtag-button]<a class="twitter-timeline" href="https://twitter.com/[href-path]"[checked_data-screen-name] data-widget-id="[data-widget-id]" data-chrome="transparent noborder noheader[nofooter]" data-tweet-limit="[openberkeley_twitter_number_tweets]" data-show-replies="[show_replies]">[title]</a><script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?\'http\':\'https\';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>',
-    //'embed template' => '<a class="twitter-timeline" href="https://twitter.com/[href-path]">[title]</a> <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>',// works
-    //data-widget-id="profile_[checked_data-screen-name]" data-chrome="transparent noborder noheader[nofooter]"
     'embed template' => '[checked_follow-button]<a class="twitter-timeline" href="https://twitter.com/[href-path]" data-tweet-limit="[openberkeley_twitter_number_tweets]" data-show-replies="[show_replies]" data-chrome="transparent noborder noheader[nofooter]">[title]</a> <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>',
   );
 }
