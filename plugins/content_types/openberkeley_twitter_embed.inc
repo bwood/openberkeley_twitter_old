@@ -28,7 +28,7 @@ function openberkeley_twitter_openberkeley_twitter_embed_content_type_edit_form(
       <ul>
         <li><em>" . t("Note: The \"A Tweet\" (single tweet) option is not supported here. It is also not possible to embed hashtag search timelines.") . "</em></li>
       </ul>
-    <li>" . t("Determine the url of the profile or collection you want to embed and paste it in the box on the <a href=\"!publish_page\">Twitter publish page</a>. Choose \"Embedded Timeline.\" (The grid option is not supported).", array('!publish_page' => $publish_url)) . "</li>
+    <li>" . t("Determine the url of the profile or collection you want to embed and paste it in the box on the <a href=\"!publish_page\">Twitter publish page</a>. Choose \"Embedded Timeline.\"", array('!publish_page' => $publish_url)) . "</li>
     <li>" . t("Copy the code that Twitter provides and paste it into the Twitter Embed Code text box below.") . "</li>
     <li>" . t("Click the Update Preview button and you should see the Twitter timeline rendered.  If things look good click the Save button at the very bottom of this window.") . "</li>
   </ol>
@@ -53,7 +53,7 @@ function openberkeley_twitter_openberkeley_twitter_embed_content_type_edit_form(
     '#type' => 'select',
     '#required' => TRUE,
     '#title' => t('Number of tweets to display'),
-    '#description' => '',
+    '#description' => t('This setting will not apply to Twitter "collections" using the "grid" display.'),
     '#default_value' => (isset($conf['openberkeley_twitter_number_tweets']) && !empty($conf['openberkeley_twitter_number_tweets'])) ? $conf['openberkeley_twitter_number_tweets'] : 3,
     '#options' => array(
       1 => 1,
@@ -195,16 +195,15 @@ function openberkeley_twitter_widget() {
     'patterns' => array(
       'href-path' => '|href\s?=\s?"https://twitter.com/([^"]+)"|',
       //'data-widget-id' => '|data-widget-id\s?=\s?"([^"]+)"|',
-      //'title' => '|data-widget-id\s?=\s?"[^"]+">([^<]+)|',
       'title' => '|<a[^>]+>([^<]+)</a>|',
-
+      'anchor-class' => '|<a class="?([^"]+)"?|',
     ),
     'extract element callback' => 'openberkeley_twitter_widget_extract_element_callback',
     'embed callback' => 'openberkeley_twitter_widget_embed_callback',
     // tokens beginning with 'checked_' reference values which have already been parsed with check_plain()
     // old-style embed (pre-OPENUCB-1244)
     //'embed template' => '[checked_follow-button][checked_hashtag-button]<a class="twitter-timeline" href="https://twitter.com/[href-path]"[checked_data-screen-name] data-widget-id="[data-widget-id]" data-chrome="transparent noborder noheader[nofooter]" data-tweet-limit="[openberkeley_twitter_number_tweets]" data-show-replies="[show_replies]">[title]</a><script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?\'http\':\'https\';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>',
-    'embed template' => '[checked_follow-button]<a class="twitter-timeline" href="https://twitter.com/[href-path]" data-tweet-limit="[openberkeley_twitter_number_tweets]" data-show-replies="[show_replies]" data-chrome="transparent noborder noheader[nofooter]">[title]</a> <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>',
+    'embed template' => '[checked_follow-button]<a class="[anchor-class]" href="https://twitter.com/[href-path]" data-tweet-limit="[openberkeley_twitter_number_tweets]" data-show-replies="[show_replies]" data-chrome="transparent noborder noheader[nofooter]">[title]</a> <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>',
   );
 }
 
@@ -364,6 +363,16 @@ function openberkeley_twitter_widget_embed_callback($config, $template) {
     if (preg_match("/^checked_/", $name)) {
       // Don't check_plain() if the token name begins with checked_
       $replacements['[' . $name . ']'] = $value;
+    }
+    elseif ($name == 'anchor-class') {
+      // Only allow the twitter-grid or the twitter-timeline classes.  If we get
+      // anything else default to twitter-timeline
+      if (check_plain($value !== 'twitter-grid')) {
+        $replacements['[' . $name . ']'] = "twitter-timeline";
+      }
+      else {
+        $replacements['[' . $name . ']'] = "twitter-grid";
+      }
     }
     else {
       $replacements['[' . $name . ']'] = check_plain($value);
