@@ -19,31 +19,18 @@ $plugin = array(
  */
 function openberkeley_twitter_openberkeley_twitter_embed_content_type_edit_form($form, &$form_state) {
 
-  $login_link = l(t("Login to Twitter"), 'https://twitter.com', array("attributes" => array("target" => "_twitter")));
-  $widgets_link = l(t("https://twitter.com/settings/widgets"), "https://twitter.com/settings/widgets", array("attributes" => array("target" => "_twitter")));
-  $timeline_types = l(t("Timeline, Favorites, List, Search and Collection"), "https://dev.twitter.com/web/embedded-timelines", array("attributes" => array("target" => "_twitter_docs")));
-  //TODO: Best practice is to use placeholders in t() for the links as opposed to variable subsititution.
-  // Doing this caused the link html to be converted to htmlentities.
+  $publish_url = 'https://publish.twitter.com/#';
   $instructions = "
  <div>
    <ol>
-    <li>$login_link " . t("using the account for which you'd like to embed data.") . "</li>
-    <li>" . t("Visit") . " $widgets_link " . t("and choose \"Create New.\"") . " ($timeline_types " . t("widgets are all supported.") . ")</li>
-    <li>" . t("Recommended widget configuration:") . "</li>
-    <ul>
-      <li>" . t("Exclude replies can be left un-checked.  This can be controlled in the form below.") . "</li>
-      <li>" . t("If a check box called \"Safe Search mode\" appears, check it.") . "</li>
-      <li>" . t("Uncheck auto-expand photos.") . "</li>
-      <li>" . t("Do not change height, theme or link color.") . "</li>
-    </ul>
-    <li>" . t("Click the \"Create New\" button. (If you are editing a widget this button will say \"Save Changes.\")") . "</li>
-    <li>" . t("Select all of the code in the box appearing above \"Copy and paste the code into the HTML of your site.\"") . "</li>
-    <ul>
-      <li><i>" . t("Note: If you attempt to specify customizations to data-chrome or other elements in your anchor tag, they will be ignored.") . "</i>
-      </li>
-    </ul>
-    <li>" . t("Paste the code into the \"Twitter embed code\" box here.") . "</li>
-    <li>" . t("Click Save.") . "</li>
+    <li>" . t("<a href=\"!login_url\">Login to Twitter</a>using the account for which you'd like to embed data.", array('!login_url' => 'https://twitter.com')) . "</li>
+    <li>" . t("Visit the <a href=\"!publish_page\">Twitter publish page</a> and check out the examples.", array('!publish_page' => $publish_url)) . "</li>
+      <ul>
+        <li><em>" . t("Note: The \"A Tweet\" (single tweet) option is not supported here. It is also not possible to embed hashtag search timelines.") . "</em></li>
+      </ul>
+    <li>" . t("Determine the url of the profile or collection you want to embed and paste it in the box on the <a href=\"!publish_page\">Twitter publish page</a>. Choose \"Embedded Timeline.\" (The grid option is not supported).", array('!publish_page' => $publish_url)) . "</li>
+    <li>" . t("Copy the code that Twitter provides and paste it into the Twitter Embed Code text box below.") . "</li>
+    <li>" . t("Click the Update Preview button and you should see the Twitter timeline rendered.  If things look good click the Save button at the very bottom of this window.") . "</li>
   </ol>
  </div>
 ";
